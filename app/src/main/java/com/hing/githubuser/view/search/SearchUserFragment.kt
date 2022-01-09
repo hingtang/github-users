@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -13,6 +15,7 @@ import com.hing.githubuser.R
 import com.hing.githubuser.databinding.FragmentSearchUserListBinding
 import com.hing.githubuser.view.UiState
 import com.hing.githubuser.view.extensions.showToast
+import com.hing.githubuser.view.extensions.visible
 import com.hing.githubuser.view.listeners.OnLoadMoreListener
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -59,6 +62,8 @@ class SearchUserFragment : Fragment() {
             when (it) {
                 is UiState.Failed -> {
                     binding.swipeRefreshLayout.isRefreshing = false
+                    binding.progressBar.visible(false)
+
                     userListAdapter.updateData(mutableListOf())
                     val messagesRes = if (it.error is UserListState.FailedState.EmptyData) {
                         if (userListAdapter.isLoadMore) {
@@ -72,16 +77,29 @@ class SearchUserFragment : Fragment() {
                     binding.root.context.showToast(messagesRes)
                 }
                 is UiState.Loading -> {
+                    binding.progressBar.visible(true)
                     userListAdapter.updateData(mutableListOf())
                 }
                 is UiState.Success -> {
                     binding.swipeRefreshLayout.isRefreshing = false
+                    binding.progressBar.visible(false)
                     userListAdapter.updateData(it.data.users)
                 }
             }
         }
         viewModel.isLoadMore.observe(viewLifecycleOwner) {
             userListAdapter.isLoadMore = it
+        }
+    }
+
+    private fun initSearchView() {
+        binding.edtSearch.doAfterTextChanged {
+            val text = it?.toString()
+            if (text.isNullOrBlank()) {
+                viewModel.getUsers()
+            } else {
+                viewModel.searchUser(text)
+            }
         }
     }
 
@@ -112,8 +130,13 @@ class SearchUserFragment : Fragment() {
         ) {
             override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView) {
                 if (viewModel.liveData.value is UiState.Success) {
-                    val users = (viewModel.liveData.value as UiState.Success).data.users
-                    viewModel.getUsers(users.last().id)
+                    val searchText = binding.edtSearch.text.toString()
+                    if (searchText.isBlank()) {
+                        val users = (viewModel.liveData.value as UiState.Success).data.users
+                        viewModel.getUsers(users.last().id)
+                    } else {
+                        viewModel.searchUser(searchText, page)
+                    }
                 }
             }
         }

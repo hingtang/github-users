@@ -11,4 +11,11 @@ interface GitHubApi {
         @Query("since") since: Int,
         @Query("per_page") perPage: Int
     ): List<UserResponse>
+
+    @GET("search/users")
+    suspend fun searchUsers(
+        @Query("q") keywords: String,
+        @Query("page") page: Int,
+        @Query("per_page") perPage: Int
+    ): SearchUserResponse
 }

@@ -4,4 +4,12 @@
     <string name="no_data">No data</string>
     <string name="no_more_data">No more data</string>
     <string name="load_data_failed">Load data failed</string>
+
+    <!--    User Detail-->
+    <string name="following">Following</string>
+    <string name="follower">Followers</string>
+    <string name="public_repos">Public Repos</string>
+    <string name="login_name">Login name:</string>
+    <string name="bio">Bio</string>
+    <string name="github_html">Github HTML:</string>
 </resources>

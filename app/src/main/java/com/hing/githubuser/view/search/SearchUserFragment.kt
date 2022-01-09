@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hing.githubuser.R
 import com.hing.githubuser.databinding.FragmentSearchUserListBinding
 import com.hing.githubuser.view.UiState
+import com.hing.githubuser.view.detail.UserDetailFragment
 import com.hing.githubuser.view.extensions.showToast
 import com.hing.githubuser.view.extensions.visible
 import com.hing.githubuser.view.listeners.OnLoadMoreListener
@@ -105,6 +106,14 @@ class SearchUserFragment : Fragment() {
 
     private fun initRecyclerView() {
         userListAdapter = UserListAdapter { pos ->
+            if (viewModel.liveData.value is UiState.Success) {
+                val user = (viewModel.liveData.value as UiState.Success).data.users[pos]
+                val bundle = Bundle().apply {
+                    putString(UserDetailFragment.USER_NAME, user.name)
+                }
+                Navigation.findNavController(binding.root)
+                    .navigate(R.id.action_searchUserFragment_to_userDetail_fragment, bundle)
+            }
         }
         binding.recyclerView.apply {
             adapter = userListAdapter

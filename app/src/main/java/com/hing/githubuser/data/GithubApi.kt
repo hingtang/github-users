@@ -1,8 +1,10 @@
 package com.hing.githubuser.data
 
-import com.hing.githubuser.data.search.SearchUserResponse
 import com.hing.githubuser.data.getusers.UserResponse
+import com.hing.githubuser.data.search.SearchUserResponse
+import com.hing.githubuser.data.userdetail.UserDetailResponse
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface GitHubApi {
@@ -18,4 +20,9 @@ interface GitHubApi {
         @Query("page") page: Int,
         @Query("per_page") perPage: Int
     ): SearchUserResponse
+
+    @GET("users/{username}")
+    suspend fun getUserDetail(
+        @Path("username") userName: String
+    ): UserDetailResponse
 }
